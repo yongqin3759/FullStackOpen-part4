@@ -1,5 +1,5 @@
-const Blogs = require('../models/blog')
-
+const Blog = require('../models/blog')
+const User = require('../models/user')
 const initialBlogs =  [
   {
     title: "React patterns",
@@ -40,7 +40,7 @@ const initialBlogs =  [
 ]
 
 const nonExistingId = async() => {
-  const blog = new Blog({content:'willremovethissoon', date: new Date()})
+  const blog = new Blog({title: "WebDev", author: "Tanamate", url: "https://tiffamate.com/",})
   await blog.save()
   await blog.remove()
 
@@ -48,10 +48,42 @@ const nonExistingId = async() => {
 }
 
 const blogsInDb = async() => {
-  const blogs = await Blogs.find({})
+  const blogs = await Blog.find({})
   return blogs.map(blog => blog.toJSON())
 }
 
+const initialUsers = [
+  {
+    username: "artohellas",
+    name: "Arto Hellas",
+    passwordHash: "$2a$10$S/ucssw1zZTNXsyeYE/pxu.ATK.yUngZcAxJzJjW6CkSZCtEZG/JK"
+  },
+  {
+    username: "tiffbuns",
+    name: "Tiff Ang",
+    passwordHash: '$2a$10$YJyBohfUXu6s96OjzFaOK.BdJeqMqiP.Ac21nOkMjoXdmO2CssuKG'
+  }
+]
+
+const nonExistingUserId = async() => {
+  const user = new User({username: "kek", password: "kek2", name:"kekikek"})
+
+  await user.save()
+  await user.remove()
+
+  return user._id.toString
+}
+
+const usersInDb = async() => {
+  const users = await User.find({})
+  return users.map(user => user.toJSON())
+}
+
 module.exports = {
-  initialBlogs, nonExistingId, blogsInDb
+  initialBlogs, 
+  nonExistingId, 
+  blogsInDb, 
+  initialUsers, 
+  nonExistingUserId, 
+  usersInDb
 }
