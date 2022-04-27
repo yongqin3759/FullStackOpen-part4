@@ -27,9 +27,9 @@ usersRouter.post('/', async (request, response) => {
     error.existingUser = 'user already exists'
   }
   if(password.length < 3){
-    error.password = 'password length cannot be less than 3'
+    error.password = 'Password should not be less than 3 characters!'
   }if(username.length < 3){
-    error.username = 'username length cannot be less than 3'
+    error.username = 'Username should not be less than 3 characters!'
   }
 
   if(Object.keys(error).length !== 0){

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 const supertest = require('supertest')
-const bcrypt = require('bcryptjs')
+const bcrypt = require('bcrypt')
 const helper = require('./test_helper')
 
 const app = require('../app')
@@ -39,72 +39,37 @@ describe('viewing a specific blog', () => {
 
 })
 
-describe('posting a blog', () => {
-  test('post creates a new blog post', async () => {
+
+describe('deleting a blog', () => {
+  let accessToken 
+  let blogId
+  beforeEach(async () => {
+    await User.deleteMany({})
+
+    const passwordHash = await bcrypt.hash('sekret', 10)
+    const user = new User({ username: 'root', name:'root', passwordHash })
+
+    await user.save()
+    let response = await api.post('/api/login').send({username:"root", password:"sekret"})
+    accessToken = response.body.token
+
     let newBlog = {
       title: "Derp is in the house",
       author: "Yong Qin",
       url: "https://yongqin.com/",
-      likes: 12,
+      likes: 12
     }
-  
-    
-    await api
-            .post('/api/blogs')
-            .send(newBlog)
-            .expect(201)
-            .expect('Content-Type', /application\/json/)
-  
-    const blogsAtEnd = await helper.blogsInDb()
-    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length +1)
+    let blogRes = await api
+                          .post('/api/blogs')
+                          .set('Authorization', `bearer ${accessToken}`)
+                          .send(newBlog)
+    blogId = blogRes.body.id
   })
-  
-  test('if likes property missing, default to 0', async () => {
-    let newBlog = {
-      title: "Tiff is in the house",
-      author: "Tiffany",
-      url: "https://tiffany.com/",
-    }
-  
-    await api
-            .post('/api/blogs')
-            .send(newBlog)
-            .expect(201)
-            .expect('Content-Type', /application\/json/)
-  
-    const blogsAtEnd = await helper.blogsInDb()
-  
-    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length +1)
-  
-    const content = blogsAtEnd.map(b => {return {title: b.title, author: b.author, likes: b.likes}})
-  
-    expect(content).toContainEqual({
-      title: "Tiff is in the house",
-      author: "Tiffany",
-      likes: 0
-    })
-  })
-  
-  test('if title and url properties are missing return 400 Bad request', async () => {
-    let newBlog = {
-      url: "https://tiffany.com/",
-    }
-  
-    await api
-            .post('/api/blogs')
-            .send(newBlog)
-            .expect(400)
-  
-  },15000)
-})
 
-describe('deleting a blog', () => {
   test('deleting a valid blog', async () => {
-    const blogsAtStart = await helper.blogsInDb()
-    const deletedBlog = blogsAtStart[0]
-
     await api
-            .delete(`/api/blogs/${deletedBlog.id}`)
+            .delete(`/api/blogs/${blogId}`)
+            .set('Authorization', `bearer ${accessToken}`)
             .expect(204)
     const blogsAtEnd = await helper.blogsInDb()
   
@@ -120,24 +85,50 @@ describe('deleting a blog', () => {
   test('deleting a invalid blog', async () => {
     const deletedBlogId = await helper.nonExistingId()
 
+    const blogsAtStart = await helper.blogsInDb()
     await api
             .delete(`/api/blogs/${deletedBlogId}`)
+            .set('Authorization', `bearer ${accessToken}`)
             .expect(204)
     const blogsAtEnd = await helper.blogsInDb()
-  
-    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
+    expect(blogsAtEnd).toHaveLength(blogsAtStart.length)
   })
 })
 
 describe('updating a blog', () => {
+  let accessToken 
+  let blogId
+  beforeEach(async () => {
+    await User.deleteMany({})
+
+    const passwordHash = await bcrypt.hash('sekret', 10)
+    const user = new User({ username: 'root', name:'root', passwordHash })
+
+    await user.save()
+    let response = await api.post('/api/login').send({username:"root", password:"sekret"})
+    accessToken = response.body.token
+
+    let newBlog = {
+      title: "Derp is in the house",
+      author: "Yong Qin",
+      url: "https://yongqin.com/",
+      likes: 12
+    }
+    let blogRes = await api
+                          .post('/api/blogs')
+                          .set('Authorization', `bearer ${accessToken}`)
+                          .send(newBlog)
+    blogId = blogRes.body.id
+  })
+  
   test('updating a single blog', async () => {
-    const blogsAtStart = await helper.blogsInDb()
-    const updatedBlog = blogsAtStart[0]
-    const {title, author, url, likes, id} = updatedBlog
+    const updatedBlog = await api.get(`/api/blogs/${blogId}`).expect(200)
+    const {title, author, url, id, user} = updatedBlog.body
     const updated = {likes: 9000}
     
     await api
-            .put(`/api/blogs/${updatedBlog.id}`)
+            .put(`/api/blogs/${blogId}`)
+            .set('Authorization', `bearer ${accessToken}`)
             .send(updated)
             .expect(200)
             .expect('Content-Type', /application\/json/)
@@ -148,7 +139,8 @@ describe('updating a blog', () => {
       author,
       url,
       likes: updated.likes,
-      id
+      id,
+      user: new mongoose.Types.ObjectId(user.id)
     })
   })
 })
@@ -201,7 +193,7 @@ describe('when there is initially one user in db', () => {
       .expect(400)
       .expect('Content-Type', /application\/json/)
 
-    expect(result.body.error).toContain('username: Error, expected `username` to be unique.')
+    expect(result.body.error.existingUser).toContain('user already exists')
 
     const usersAtEnd = await helper.usersInDb()
     expect(usersAtEnd).toHaveLength(usersAtStart.length)
@@ -222,7 +214,7 @@ describe('when there is initially one user in db', () => {
       .expect(400)
       .expect('Content-Type', /application\/json/)
 
-    expect(result.body.error).toContain('User validation failed')
+    expect(result.body.error.username).toContain('Username should not be less than 3 characters!')
 
     const usersAtEnd = await helper.usersInDb()
     expect(usersAtEnd).toHaveLength(usersAtStart.length)
@@ -243,11 +235,104 @@ describe('when there is initially one user in db', () => {
       .expect(400)
       .expect('Content-Type', /application\/json/)
 
-    expect(result.body.error).toContain('Password must be more than 3 characters')
+    expect(result.body.error.password).toContain('Password should not be less than 3 characters')
 
     const usersAtEnd = await helper.usersInDb()
     expect(usersAtEnd).toHaveLength(usersAtStart.length)
   })
+})
+
+describe('posting a blog', () => {
+  let accessToken 
+  beforeEach(async () => {
+    await User.deleteMany({})
+
+    const passwordHash = await bcrypt.hash('sekret', 10)
+    const user = new User({ username: 'root', name:'root', passwordHash })
+
+    await user.save()
+    let response = await api.post('/api/login').send({username:"root", password:"sekret"})
+    accessToken = response.body.token
+  })
+
+  test('post without token is unauthorised', async () => {
+    let newBlog = {
+      title: "Derp is in the house",
+      author: "Yong Qin",
+      url: "https://yongqin.com/",
+      likes: 12,
+    }
+
+    await api
+            .post('/api/blogs')
+            .send(newBlog)
+            .expect(401)
+            .expect('Content-Type', /application\/json/)
+  
+    const blogsAtEnd = await helper.blogsInDb()
+    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
+  })
+  
+  test('post with token is successful', async () => {
+    let newBlog = {
+      title: "Derp is in the house",
+      author: "Yong Qin",
+      url: "https://yongqin.com/",
+      likes: 12
+    }
+
+    await api
+            .post('/api/blogs')
+            .set('Authorization', `bearer ${accessToken}`)
+            .send(newBlog)
+            .expect(201)
+            .expect('Content-Type', /application\/json/)
+  
+
+
+    const blogsAtEnd = await helper.blogsInDb()
+    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length+1)
+  })
+
+  test('if likes property missing, default to 0', async () => {
+    let newBlog = {
+      title: "Tiff is in the house",
+      author: "Tiffany",
+      url: "https://tiffany.com/",
+    }
+  
+    await api
+            .post('/api/blogs')
+            .set('Authorization', `bearer ${accessToken}`)
+            .send(newBlog)
+            .expect(201)
+            .expect('Content-Type', /application\/json/)
+  
+    const blogsAtEnd = await helper.blogsInDb()
+  
+    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length +1)
+  
+    const content = blogsAtEnd.map(b => {return {title: b.title, author: b.author, likes: b.likes}})
+  
+    expect(content).toContainEqual({
+      title: "Tiff is in the house",
+      author: "Tiffany",
+      likes: 0
+    })
+  })
+  
+  test('if title and url properties are missing return 400 Bad request', async () => {
+    let newBlog = {
+      url: "https://tiffany.com/",
+    }
+  
+    await api
+            .post('/api/blogs')
+            .set('Authorization', `bearer ${accessToken}`)
+            .send(newBlog)
+            .expect(400)
+  
+  },15000)
 })
 
 afterAll(()=>{

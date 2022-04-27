@@ -4,7 +4,7 @@ GET http://localhost:3003/api/blogs
 
 POST http://localhost:3003/api/blogs
 Content-Type: application/json
-Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InFpbiIsImlkIjoiNjI2NjM4YzEyNTY2Y2VhZDVmMzc3ZmI4IiwiaWF0IjoxNjUwODc4NDQwfQ.KakQ4IQalJMnJ8tpLNGwRxQrG4OQhcAO5xrMNBhFzdE
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InFpbiIsImlkIjoiNjI2N2I2NTJiYjc4MTYzZmUzN2JlYTRmIiwiaWF0IjoxNjUwOTY0MDU1fQ.Jx2xIUvZ0EQDgKZeKRbfpTbJgF1vK95xCBAuUuce1dk
 
 {
     "userId": "626638c12566cead5f377fb8",
@@ -25,9 +25,9 @@ POST http://localhost:3003/api/users
 Content-Type: application/json
 
 {
-    "name":"monkey king",
-    "username": "sunwukong",
-    "password": "zhubajie"
+    "name":"yongqin",
+    "username": "qin",
+    "password": "derp"
 }
 
 ###
@@ -40,5 +40,5 @@ Content-Type: application/json
 }
 
 ###
-DELETE http://localhost:3003/api/blogs/61d968702748cb9541e238ef
-Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InFpbiIsImlkIjoiNjI2NjM4YzEyNTY2Y2VhZDVmMzc3ZmI4IiwiaWF0IjoxNjUwODc3MDQ0fQ.dR7Lkue9Uou1xpxF-hbHYJkYkINYLKc-7BGOS_r87D4
+DELETE http://localhost:3003/api/blogs/6267b669bb78163fe37bea53
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InFpbiIsImlkIjoiNjI2N2I2NTJiYjc4MTYzZmUzN2JlYTRmIiwiaWF0IjoxNjUwOTY0MTExfQ.USKbUaQX9nQOCZjfCdulyODjm3RmdzzckzCbaaKgOT4
