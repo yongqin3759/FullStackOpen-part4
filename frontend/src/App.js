@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
+import BlogForm from './components/BlogForm'
 import Notification from './components/Notification'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import './index.css'
+import Togglable from './components/Togglable'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -11,17 +13,20 @@ const App = () => {
   const [username, setUsername] =useState('')
   const [password, setPassword] = useState('')
   const [message, setMessage] = useState(null)
-  const [blogPost, setBlogPost] = useState({
-    title:'',
-    author: '',
-    url: ''
-  })
+
+  const blogFormRef = useRef()
+
+  const blogForm = () => (
+    <Togglable buttonLabel='new blog' ref={blogFormRef}>
+      <BlogForm createBlog={handleBlogPost}/>
+    </Togglable>
+  )
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs( blogs )
     )  
-  }, [])
+  }, [blogs])
 
   useEffect(()=> {
     const loggedInUser = window.localStorage.getItem('user')
@@ -93,8 +98,8 @@ const App = () => {
     </form>
   )
 
-  const handleBlogPost = (e) => {
-    e.preventDefault()
+  const handleBlogPost = (blogPost) => {
+    blogFormRef.current.toggleVisibility()
     blogService.create(blogPost).then((returnedBlog)=> {
       setBlogs(blogs.concat(returnedBlog))
       setMessage({
@@ -107,7 +112,7 @@ const App = () => {
     }).catch((error) => {
       setMessage({
         isSuccess: false,
-        message: error
+        message: error.message
       })
       setTimeout(()=> {
         setMessage(null)
@@ -115,27 +120,7 @@ const App = () => {
     })
   }
 
-  const blogForm = () => (
-    <form onSubmit={handleBlogPost}>
-      <h2>Create New Blog</h2>
-            <p>Title: 
-            <input 
-            type="text" 
-            onChange={(e)=> setBlogPost({...blogPost,title:e.target.value})}/>
-            </p>
-            <p>Name: 
-            <input 
-            type="text" 
-            onChange={(e)=> setBlogPost({...blogPost,author:e.target.value})}/>
-            </p>
-            <p>URL: 
-            <input 
-            type="text" 
-            onChange={(e)=> setBlogPost({...blogPost,url:e.target.value})}/>
-            </p>
-            <button>Create Blog</button>
-    </form>
-  )
+  
 
   return (
     <div>
@@ -148,8 +133,8 @@ const App = () => {
           {blogForm()}
           <br/>
           <h2>Blogs:</h2>
-          {blogs.map(blog =>
-            <Blog key={blog.id} blog={blog} />
+          {blogs.sort((a,b)=>(b.likes - a.likes)).map(blog =>
+            <Blog key={blog.id} blog={blog} setMessage={setMessage}/>
           )}
         </div>
       }
