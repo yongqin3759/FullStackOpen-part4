@@ -39,6 +39,7 @@ const remove = (id) => {
 
   return axios.delete(`${baseUrl}/${id}`, config)
               .then((res)=> (res.data))
+              .catch(err => err)
 }
 
 export default { getAll, setToken ,create, update, remove}

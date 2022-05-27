@@ -35,12 +35,12 @@ const Blog = ({ blog, setMessage}) => {
     blogService.remove(blog.id)
       .then(()=> {
         setMessage({
-          isSucess: true,
+          isSuccess: true,
           message: 'Blog deleted'
         })
       }).catch(err=> {
         setMessage({
-          isSucess: false,
+          isSuccess: false,
           message: err.message
         })
       })
