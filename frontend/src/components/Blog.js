@@ -19,15 +19,20 @@ const Blog = ({ blog, setMessage}) => {
   }
 
   const increaseLikes = () => {
+    setLikes(likes+1)
     blogService.update(blog.id, {
       likes: likes +1,
     }).then(()=> {
-      setLikes(likes+1)
+      setMessage({
+        isSucess: true,
+        message: 'You liked the post'
+      })
     }).catch(err=> {
       setMessage({
         isSucess: false,
         message: err.message
       })
+      setLikes(likes-1)
     })
   }
 
