@@ -9,37 +9,38 @@ const setToken = (newToken) => {
 
 const getAll = () => {
   const request = axios.get(baseUrl)
-  return request.then(response => response.data)
+  return request.then((response) => response.data)
 }
 
 const create = (newObject) => {
   const config = {
-    headers: {Authorization: token}
+    headers: { Authorization: token },
   }
 
-  return axios.post(baseUrl, newObject, config)
-          .then((res)=> {
-            return(res.data)})
+  return axios.post(baseUrl, newObject, config).then((res) => {
+    return res.data
+  })
 }
 
-const update = (id,newObject) => {
+const update = (id, newObject) => {
   const config = {
-    headers: {Authorization: token}
+    headers: { Authorization: token },
   }
 
-  return axios.put(`${baseUrl}/${id}`, newObject, config)
-          .then((res)=> {
-            return(res.data)})
+  return axios.put(`${baseUrl}/${id}`, newObject, config).then((res) => {
+    return res.data
+  })
 }
 
 const remove = (id) => {
   const config = {
-    headers: {Authorization: token}
+    headers: { Authorization: token },
   }
 
-  return axios.delete(`${baseUrl}/${id}`, config)
-              .then((res)=> (res.data))
-              .catch(err => err)
+  return axios
+    .delete(`${baseUrl}/${id}`, config)
+    .then((res) => res.data)
+    .catch((err) => err)
 }
 
-export default { getAll, setToken ,create, update, remove}
+export default { getAll, setToken, create, update, remove }
