@@ -1,67 +1,69 @@
-import { useState , useRef} from "react"
-import blogs from "../services/blogs"
-import blogService from '../services/blogs'
+import { useState } from "react"
+import blogService from "../services/blogs"
 
-const Blog = ({ blog, setMessage}) => {
+const Blog = ({ blog, setMessage, updateLikes }) => {
   const [show, setShow] = useState(false)
   const [likes, setLikes] = useState(blog.likes)
 
-	const blogStyle = {
-		paddingTop: 10,
-		paddingLeft: 2,
-		border: "solid",
-		borderWidth: 1,
-		marginBottom: 5,
-	}
+  const blogStyle = {
+    paddingTop: 10,
+    paddingLeft: 2,
+    border: "solid",
+    borderWidth: 1,
+    marginBottom: 5,
+  }
 
-  const handleShow = ()=> {
+  const handleShow = () => {
     setShow(!show)
   }
 
-  const increaseLikes = () => {
-    blogService.update(blog.id, {
-      likes: likes +1,
-    }).then(()=> {
-      setLikes(likes+1)
-    }).catch(err=> {
-      setMessage({
-        isSucess: false,
-        message: err.message
-      })
-    })
+  const addLikes = () => {
+    setLikes(likes+1)
+    updateLikes(blog.id, likes+1)
   }
 
   const removeBlog = () => {
-    blogService.remove(blog.id)
-      .then(()=> {
+    blogService
+      .remove(blog.id)
+      .then(() => {
         setMessage({
           isSuccess: true,
-          message: 'Blog deleted'
+          message: "Blog deleted",
         })
-      }).catch(err=> {
+      })
+      .catch((err) => {
         setMessage({
           isSuccess: false,
-          message: err.message
+          message: err.message,
         })
       })
   }
 
-	return (
-		<div style={blogStyle}>
-			<div>
-				{blog.title} {blog.author}
-      <button onClick={handleShow}>{show? 'hide': 'view'}</button>
-			</div>
-      {show ? 
-        <div>
-          <div>{blog.url}</div>
-          <div>Likes {likes} <button onClick={increaseLikes}>Like</button></div>
+  return (
+    <div style={blogStyle}>
+      <div>
+        {blog.title} {blog.author}
+        <button className="toggle-blog-info" onClick={handleShow}>
+          {show ? "hide" : "view"}
+        </button>
+      </div>
+      {show ? (
+        <div className="additional-info">
+          <div className="blog-url">{blog.url}</div>
+          <div className="blog-likes">
+            Likes {likes}{" "}
+            <button className="add-likes" onClick={addLikes}>
+              Like
+            </button>
+          </div>
           <div>{blog.user.name}</div>
           <button onClick={removeBlog}>remove</button>
-        </div> 
-        :''}
-		</div>
-	)
+        </div>
+      ) : (
+        ""
+      )}
+    </div>
+  )
 }
 
 export default Blog
