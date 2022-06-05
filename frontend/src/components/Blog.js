@@ -1,14 +1,14 @@
-import { useState } from 'react'
-import blogService from '../services/blogs'
+import { useState } from "react"
+import blogService from "../services/blogs"
 
-const Blog = ({ blog, setMessage }) => {
+const Blog = ({ blog, setMessage, updateLikes }) => {
   const [show, setShow] = useState(false)
   const [likes, setLikes] = useState(blog.likes)
 
   const blogStyle = {
     paddingTop: 10,
     paddingLeft: 2,
-    border: 'solid',
+    border: "solid",
     borderWidth: 1,
     marginBottom: 5,
   }
@@ -17,25 +17,9 @@ const Blog = ({ blog, setMessage }) => {
     setShow(!show)
   }
 
-  const increaseLikes = () => {
-    setLikes(likes + 1)
-    blogService
-      .update(blog.id, {
-        likes: likes + 1,
-      })
-      .then(() => {
-        setMessage({
-          isSucess: true,
-          message: 'You liked the post',
-        })
-      })
-      .catch((err) => {
-        setMessage({
-          isSucess: false,
-          message: err.message,
-        })
-        setLikes(likes - 1)
-      })
+  const addLikes = () => {
+    setLikes(likes+1)
+    updateLikes(blog.id, likes+1)
   }
 
   const removeBlog = () => {
@@ -44,7 +28,7 @@ const Blog = ({ blog, setMessage }) => {
       .then(() => {
         setMessage({
           isSuccess: true,
-          message: 'Blog deleted',
+          message: "Blog deleted",
         })
       })
       .catch((err) => {
@@ -59,19 +43,24 @@ const Blog = ({ blog, setMessage }) => {
     <div style={blogStyle}>
       <div>
         {blog.title} {blog.author}
-        <button onClick={handleShow}>{show ? 'hide' : 'view'}</button>
+        <button className="toggle-blog-info" onClick={handleShow}>
+          {show ? "hide" : "view"}
+        </button>
       </div>
       {show ? (
-        <div>
-          <div>{blog.url}</div>
-          <div>
-            Likes {likes} <button onClick={increaseLikes}>Like</button>
+        <div className="additional-info">
+          <div className="blog-url">{blog.url}</div>
+          <div className="blog-likes">
+            Likes {likes}{" "}
+            <button className="add-likes" onClick={addLikes}>
+              Like
+            </button>
           </div>
           <div>{blog.user.name}</div>
           <button onClick={removeBlog}>remove</button>
         </div>
       ) : (
-        ''
+        ""
       )}
     </div>
   )
