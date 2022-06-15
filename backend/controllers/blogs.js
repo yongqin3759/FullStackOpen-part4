@@ -21,6 +21,7 @@ blogsRouter.post('/', middleware.userExtractor, async (request, response) => {
   const blog = new Blog({...request.body,user})
 
   const savedBlog = await blog.save()
+  console.log(user)
   user.blogs = user.blogs.concat(savedBlog._id)
   await user.save()
 
@@ -37,11 +38,11 @@ blogsRouter.delete('/:id', middleware.userExtractor, async (request, response) =
   
   const user = request.user
   
-  if(blog.user.toString() === user._id.toString()){
-    await Blog.findByIdAndDelete(blogId)
-    return response.status(204).json({success: 'blog deleted'})
+  if(blog.user.toString() !== user._id.toString()){
+    return response.status(401).json({error: 'unauthorised blog deletion'})
   }else{
-    return response.status(401).json({ error: 'blog does not exist' })
+    await Blog.findByIdAndDelete(blogId)
+    response.status(204).json({success: 'blog deleted'})
   }
 
 })

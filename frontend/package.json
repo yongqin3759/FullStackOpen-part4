@@ -11,7 +11,11 @@
     "react-scripts": "^4.0.3",
     "web-vitals": "^1.0.1"
   },
-  "eslint.workingDirectories": [{ "mode": "auto" }],
+  "eslint.workingDirectories": [
+    {
+      "mode": "auto"
+    }
+  ],
   "overrides": {
     "react-error-overlay": "6.0.9"
   },
@@ -24,7 +28,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "eslint": "eslint ."
+    "eslint": "eslint .",
+    "cypress:open": "cypress open"
   },
   "browserslist": {
     "production": [
@@ -43,6 +48,8 @@
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^14.2.0",
+    "cypress": "^10.1.0",
+    "eslint-plugin-cypress": "^2.12.1",
     "eslint-plugin-jest": "^24.7.0",
     "jest-watch-typeahead": "^0.6.5",
     "react-error-overlay": "6.0.9"
