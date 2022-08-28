@@ -21,7 +21,6 @@ const Blog = ({ blog, updateLikes, handleRemove }) => {
     updateLikes(blog.id, likes + 1)
   }
 
-  console.log(blog.user)
   const removeBlog = () => {
     handleRemove(blog.id)
   }
