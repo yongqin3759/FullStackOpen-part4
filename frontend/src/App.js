@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import Blog from './components/Blog'
 import BlogForm from './components/BlogForm'
 import Notification from './components/Notification'
 import blogService from './services/blogs'
@@ -11,10 +10,7 @@ import LoginForm from './components/LoginForm'
 import { notificationChange } from './reducers/notificationReducer'
 import { setUser } from './reducers/userReducer'
 import {
-  blogAddLike,
   blogCreate,
-  blogDelete,
-  blogSort,
   initializeBlogs,
 } from './reducers/blogReducer'
 import Navbar from './components/Navbar'
@@ -130,48 +126,6 @@ const App = () => {
       })
   }
 
-  const handleAddLikes = (id, likes) => {
-    blogService
-      .update(id, {
-        likes,
-      })
-      .then(() => {
-        dispatch(blogAddLike(id))
-        dispatch(blogSort())
-      })
-      .catch((err) => {
-        dispatch(
-          notificationChange({
-            isSuccess: false,
-            message: err.message,
-          })
-        )
-      })
-  }
-
-  const handleRemove = (id) => {
-    blogService
-      .remove(id)
-      .then(() => {
-        dispatch(
-          notificationChange({
-            isSuccess: true,
-            message: 'Blog Deleted',
-          })
-        )
-        dispatch(blogDelete(id))
-      })
-      .catch((err) => {
-        console.log(err)
-        dispatch(
-          notificationChange({
-            isSuccess: false,
-            message: 'Unauthorized blog deletion',
-          })
-        )
-      })
-  }
-
   return (
     <div>
       <Notification />
@@ -185,7 +139,6 @@ const App = () => {
         />
       ) : (
         <div>
-          <Navbar />
           <h2>blogs</h2>
           <h3>
             {user.name} has logged in
@@ -193,15 +146,7 @@ const App = () => {
           </h3>
           {blogForm()}
           <br />
-          <h2>Blogs:</h2>
-          {blogs.map((blog) => (
-            <Blog
-              key={blog.id}
-              blog={blog}
-              updateLikes={handleAddLikes}
-              handleRemove={handleRemove}
-            />
-          ))}
+          <Navbar blogs={blogs}/>
         </div>
       )}
     </div>

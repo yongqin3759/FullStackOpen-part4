@@ -1,8 +1,16 @@
 import { useState } from 'react'
+import { useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+import { addLikeToBlog } from '../reducers/blogReducer'
+import { removeBlog } from '../reducers/blogReducer'
 
-const Blog = ({ blog, updateLikes, handleRemove }) => {
-  const [show, setShow] = useState(false)
+const Blog = ({ blog }) => {
+  if(!blog){
+    return
+  }
   const [likes, setLikes] = useState(blog.likes)
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
 
   const blogStyle = {
     paddingTop: 10,
@@ -12,42 +20,32 @@ const Blog = ({ blog, updateLikes, handleRemove }) => {
     marginBottom: 5,
   }
 
-  const handleShow = () => {
-    setShow(!show)
-  }
-
   const addLikes = () => {
+    dispatch(addLikeToBlog(blog.id, likes+1))
     setLikes(likes + 1)
-    updateLikes(blog.id, likes + 1)
   }
 
-  const removeBlog = () => {
-    handleRemove(blog.id)
+  const handleRemoveBlog = () => {
+    dispatch(removeBlog(blog.id))
+    navigate('/blogs')
   }
 
   return (
     <div className='blog' style={blogStyle}>
-      <div>
-        {blog.title} {blog.author}
-        <button className='toggle-blog-info' onClick={handleShow}>
-          {show ? 'hide' : 'view'}
-        </button>
-      </div>
-      {show ? (
-        <div className='additional-info'>
-          <div className='blog-url'>{blog.url}</div>
-          <div className='blog-likes'>
-            Likes {likes}{' '}
-            <button className='add-likes' onClick={addLikes}>
-              Like
-            </button>
-          </div>
-          <div>{blog.user.name}</div>
-          <button onClick={removeBlog}>remove</button>
+      <h2>
+        {blog.title} | {blog.author}
+      </h2>
+      <div className='additional-info'>
+        <div className='blog-url'>{blog.url}</div>
+        <div className='blog-likes'>
+          Likes {likes}{' '}
+          <button className='add-likes' onClick={addLikes}>
+            Like
+          </button>
         </div>
-      ) : (
-        ''
-      )}
+        <div>Added by {blog.user.name}</div>
+        <button onClick={handleRemoveBlog}>remove</button>
+      </div>
     </div>
   )
 }
