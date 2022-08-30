@@ -47,6 +47,25 @@ blogsRouter.delete('/:id', middleware.userExtractor, async (request, response) =
 
 })
 
+blogsRouter.post('/:id/comments', middleware.userExtractor, async (request, response) => {
+  const blogId = request.params.id
+  const body = request.body
+  const blog = await Blog.findById(blogId)
+  
+  if(!blog){
+    return response.status(204).json({error: 'blog does not exist'})
+  }
+  if(!body){
+    return response.status(204).json({error: 'body is not defined'})
+  }
+  console.log(body)
+  
+  const comments = blog.comments.concat(body.comment)
+  const updatedComments = await Blog.findByIdAndUpdate(blogId, {comments}, {new:true} )
+  
+  return response.status(200).json(updatedComments)
+})
+
 
 blogsRouter.put('/:id', middleware.userExtractor, async (request, response) => {
   const body = request.body

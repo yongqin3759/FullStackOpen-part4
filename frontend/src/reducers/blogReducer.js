@@ -12,15 +12,12 @@ const blogsSlice = createSlice({
     },
     blogDelete(state, action) {
       const id = action.payload
-      console.log([...state].filter((blog) => !(blog.id === id)))
       return [...state].filter((blog) => !(blog.id === id))
     },
     blogAddLike(state, action) {
       const id = action.payload
       return [...state].map((blog) => {
-        return blog.id !== id
-          ? blog
-          : { ...blog,likes : blog.likes + 1 }
+        return blog.id !== id ? blog : { ...blog, likes: blog.likes + 1 }
       })
     },
     blogSort(state) {
@@ -31,11 +28,26 @@ const blogsSlice = createSlice({
     blogSet(state, action) {
       return action.payload
     },
+    blogAddComment(state, action) {
+      const id = action.payload.id
+      const comment = action.payload.comment
+      return [...state].map((blog) => {
+        return blog.id !== id
+          ? blog
+          : { ...blog, comments: blog.comments.concat(comment) }
+      })
+    },
   },
 })
 
-export const { blogCreate, blogAddLike, blogDelete, blogSort, blogSet } =
-  blogsSlice.actions
+export const {
+  blogCreate,
+  blogAddLike,
+  blogDelete,
+  blogSort,
+  blogSet,
+  blogAddComment,
+} = blogsSlice.actions
 
 export const initializeBlogs = () => {
   return async (dispatch) => {
@@ -56,7 +68,7 @@ export const removeBlog = (id) => {
           message: 'Blog Deleted',
         })
       )
-    } catch {
+    } catch (ex) {
       dispatch(
         notificationChange({
           isSuccess: false,
@@ -79,11 +91,27 @@ export const addLikeToBlog = (id, likes) => {
           message: 'Added Like!',
         })
       )
-    } catch {
+    } catch (ex) {
       dispatch(
         notificationChange({
           isSuccess: false,
           message: 'Unable to add like!',
+        })
+      )
+    }
+  }
+}
+
+export const addCommentToBlog = (id, comment) => {
+  return async (dispatch) => {
+    try {
+      dispatch(blogAddComment({ id, comment }))
+      await blogsService.addComment(id, { comment })
+    } catch (ex) {
+      dispatch(
+        notificationChange({
+          isSuccess: false,
+          message: 'Unable to add comment!',
         })
       )
     }

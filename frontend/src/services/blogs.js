@@ -37,9 +37,16 @@ const remove = (id) => {
     headers: { Authorization: token },
   }
 
+  return axios.delete(`${baseUrl}/${id}`, config).then((res) => res.data)
+}
+
+const addComment = (id, commentObj) => {
+  const config = {
+    headers: { Authorization: token },
+  }
   return axios
-    .delete(`${baseUrl}/${id}`, config)
+    .post(`${baseUrl}/${id}/comments`, commentObj, config)
     .then((res) => res.data)
 }
 
-export default { getAll, setToken, create, update, remove }
+export default { getAll, setToken, create, update, remove, addComment }
